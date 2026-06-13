@@ -4,21 +4,21 @@
 
 local resourceName = GetCurrentResourceName()
 
--- 🔑 Expected Client Hashes (Paste your current hash here)
+-- 🔑 Твоят точен хъш за клиентския файл (Заключен)
 local expectedHashes = {
-    client = "20991820" -- If this doesn't match, the console will tell you the exact new number below!
+    client = "20991820"
 }
 
--- Server-side file reader hashing algorithm
+-- Сървърно четене и хеширане на файла
 local function checkFile(file)
     local content = LoadResourceFile(resourceName, file)
     if not content then return nil end
     return tostring(GetHashKey(content))
 end
 
--- Beautiful txAdmin/FXServer Console Monitor Print
+-- Красив txAdmin/FXServer Console Monitor Принт
 local function printShieldConsole(statusOk, currentHash)
-    -- Wait 3 seconds to let FXServer, Nucleus, and standard log queues settle completely
+    -- Изчакваме 3 секунди, за да се заредят логовете на FXServer и Nucleus чисти
     Citizen.SetTimeout(3000, function()
         if statusOk then
             print("\n^2" .. string.rep("═", 55))
@@ -42,15 +42,15 @@ local function printShieldConsole(statusOk, currentHash)
     end)
 end
 
--- Resource Initialization Self-Check Validation Loop
-AddEventHandler('onResourceStart', function(res)
+-- ПОПРАВЕНО: Използваме 'onServerResourceStart' вместо базовия 'onResourceStart'
+AddEventHandler('onServerResourceStart', function(res)
     if res ~= resourceName then return end
     
     local clientHash = checkFile("client.lua")
 
     if clientHash ~= expectedHashes.client then
         printShieldConsole(false, clientHash)
-        -- Delayed stopping ensures logs register cleanly before execution block
+        -- Делей за спирането, за да може конзолата да запише грешката красиво
         Citizen.SetTimeout(3200, function()
             StopResource(resourceName)
         end)
